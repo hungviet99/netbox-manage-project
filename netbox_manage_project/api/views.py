@@ -27,17 +27,15 @@ class ProjectViewSet(NetBoxModelViewSet):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         for project in queryset:
-            project.device_count = Device.objects.all().filter(
-                custom_field_data__project='{pk}_{pjname}'.format(pk=project.pk, pjname=project.name)
-            ).count()
-            project.ip_count = IPAddress.objects.all().filter(
-                custom_field_data__project='{pk}_{pjname}'.format(pk=project.pk, pjname=project.name)
-            ).count()
-            project.vm_count = VirtualMachine.objects.all().filter(
-                custom_field_data__project='{pk}_{pjname}'.format(pk=project.pk, pjname=project.name)
-            ).count()
+            project.device_count = project.devices.all().count()
+            project.ip_count = project.ipaddress.all().count()
+            project.vm_count = project.virtualmachine.all().count()
+
             quota_templates = models.QuotaTemplate.objects.filter(id=project.quota_template_id).first()
-            vms = VirtualMachine.objects.filter(custom_field_data__project='{pk}_{pjname}'.format(pk=project.pk, pjname=project.name))
+            vms_list = project.virtualmachine.all()
+            vms = VirtualMachine.objects.filter(
+                    pk__in=[vm.pk for vm in vms_list]
+                )
             result = vms.aggregate(total_ram=Sum('memory'), total_cpu=Sum('vcpus'))
             if result['total_cpu'] and result['total_ram']:
                 total_cpu = result['total_cpu']
@@ -84,4 +82,4 @@ class ProjectViewSet(NetBoxModelViewSet):
 class QuotaTemplateViewSet(NetBoxModelViewSet):
     queryset = models.QuotaTemplate.objects.prefetch_related('tags')
     serializer_class = QuotaTemplateSerializer
-    # filterset_class = filtersets.AccessListRuleFilterSet
+    # filterset_class = filtersets.ProjectFilterSet
