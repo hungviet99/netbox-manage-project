@@ -28,15 +28,6 @@ quota_template_buttons = [
     )
 ]
 
-user_butons = [
-    PluginMenuButton(
-        link='plugins:netbox_manage_project:user_add',
-        title='Add',
-        icon_class='mdi mdi-plus-thick',
-        color=ButtonColorChoices.GREEN
-    )
-]
-
 
 menu_buttons = (
     PluginMenuItem(
@@ -48,12 +39,7 @@ menu_buttons = (
         link='plugins:netbox_manage_project:quotatemplate_list',
         link_text='Quota Template',
         buttons=quota_template_buttons
-    ),
-    PluginMenuItem(
-        link='plugins:netbox_manage_project:user_list',
-        link_text='User',
-        buttons=user_butons
-    ),
+    )
 )
 
 

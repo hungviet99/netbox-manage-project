@@ -1,12 +1,12 @@
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, ChoiceFieldColumn, columns
-from .models import Project, QuotaTemplate, User
+from .models import Project, QuotaTemplate
+
 
 __all__ = (
     'ProjectTable',
     'QuotaTemplateTable',
-    'UserTable',
 )
 
 class ProjectTable(NetBoxTable):
@@ -29,7 +29,7 @@ class ProjectTable(NetBoxTable):
     ip_count = tables.Column(
     )
 
-    instance_count = tables.Column(
+    vm_count = tables.Column(
     )
 
     description = tables.Column()
@@ -48,7 +48,13 @@ class ProjectTable(NetBoxTable):
                   "quota_template", 
                   "device_count",
                   "ip_count",
-                  "instance_count",
+                  "vm_count",
+                  "ram_quota_used",
+                  "cpu_quota_used",
+                  "disk_quota_used",
+                  "device_quota_used",
+                  "vm_quota_used",
+                  "ip_quota_used",
                   "description", 
                   "comments",
                   "tags", 
@@ -63,19 +69,19 @@ class ProjectTable(NetBoxTable):
                            "quota_template", 
                            "device_count",
                            "ip_count",
-                           "instance_count",
+                           "vm_count",
                         )
 
 class QuotaTemplateTable(NetBoxTable):
     template_name = tables.Column(
         linkify=True,
     )
-
     instances_quota = tables.Column()
 
     vcpus_quota = tables.Column()
 
-    ram_quota = tables.Column()
+    ram_quota = tables.Column(
+    )
 
     ipaddr_quota = tables.Column()
 
@@ -106,43 +112,4 @@ class QuotaTemplateTable(NetBoxTable):
             'ram_quota',
             'ipaddr_quota',
             'device_quota',
-        )
-
-class UserTable(NetBoxTable):
-    user_name = tables.Column(
-        linkify=True,
-    )
-    project = tables.Column(
-        linkify=True,
-    )
-
-    phone = tables.Column()
-
-    mail = tables.Column()
-
-    address = tables.Column()
-
-    comments = columns.MarkdownColumn()
-    tags = columns.TagColumn()
-    class Meta(NetBoxTable.Meta):
-        model = User
-        fields = (
-            'id',
-            'user_name',
-            'project',
-            'phone',
-            'mail',
-            'address',
-            'comments',
-            'tags',
-            'created',
-            'last_updated',
-            'actions',
-        )
-        default_columns = (
-            'user_name',
-            'project',
-            'phone',
-            'mail',
-            'address',
         )

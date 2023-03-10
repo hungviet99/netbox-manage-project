@@ -1,4 +1,4 @@
-from .models import Project, QuotaTemplate, User, ProjectStatusChoices
+from .models import Project, QuotaTemplate, ProjectStatusChoices
 from extras.models import Tag
 from netbox.forms import NetBoxModelForm, NetBoxModelFilterSetForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
@@ -6,6 +6,7 @@ from utilities.forms import ConfirmationForm, BootstrapMixin
 from django import forms
 from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
 from ipam.models import IPAddress
+from tenancy.models import Contact
 from virtualization.models import ClusterGroup, Cluster, VirtualMachine
 
 
@@ -15,6 +16,18 @@ class ProjectForm(NetBoxModelForm):
         queryset=Tag.objects.all(),
         required=False
     )
+    fieldsets = (
+        (
+            'General', 
+            (
+                'name', 
+                'project_id', 
+                'domain_name', 
+                'status', 
+                'quota_template'
+            )
+        ),
+    )
     class Meta:
         model = Project
         fields = ('name', 'project_id', 'domain_name', 'status', 'quota_template', 'comments', 'tags')
@@ -23,7 +36,6 @@ class ProjectForm(NetBoxModelForm):
 class ProjectFilterForm(NetBoxModelFilterSetForm):
     model = Project
     name = forms.CharField(
-        required=False,
     )
     project_id = forms.CharField(
         required=False,
@@ -37,36 +49,54 @@ class ProjectFilterForm(NetBoxModelFilterSetForm):
         required=False,
     )
 
+
 class QuotaTemplateForm(NetBoxModelForm):
+    template_name = forms.CharField(
+        label='Name',
+    )
+    instances_quota = forms.IntegerField(
+        label='VM Quota',
+        required=False,
+    )
+
+    vcpus_quota = forms.IntegerField(
+        label='VCPUs Quota',
+        required=False,
+    )
+    ram_quota = forms.IntegerField(
+        label='RAM Quota (MB)',
+        required=False,
+    )
+    ipaddr_quota = forms.IntegerField(
+        label='IP Quota',
+        required=False,
+    )
+    device_quota = forms.IntegerField(
+        label='Device Quota',
+        required=False,
+    )
     comments = CommentField()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False
+    )
+    fieldsets = (
+        (
+            'General', 
+            (
+                'template_name', 
+                'instances_quota', 
+                'vcpus_quota', 
+                'ram_quota', 
+                'ipaddr_quota', 
+                'device_quota'
+            )
+        ),
     )
     class Meta:
         model = QuotaTemplate
         fields = ('template_name', 'instances_quota', 'vcpus_quota', 'ram_quota', 'ipaddr_quota', 'device_quota', 'comments', 'tags')
 
-class UserForm(NetBoxModelForm):
-    comments = CommentField()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False
-    )
-    class Meta:
-        model = User
-        fields = ('user_name', 'project', 'phone', 'mail', 'address', 'comments', 'tags')
-
-class UserFilterForm(NetBoxModelFilterSetForm):
-    model = User
-
-    project = DynamicModelChoiceField(
-        queryset=Project.objects.all(),
-        required=False,
-    )
-    user_name = forms.CharField(
-        required=False,
-    )
 
 ###### Project Device ######
 
@@ -153,7 +183,7 @@ class ProjectAddInstanceForm(BootstrapMixin, forms.Form):
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all()
     )
-    instance = DynamicModelMultipleChoiceField(
+    virtualmachine = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         query_params={
             "vm_role": "True",
@@ -162,11 +192,36 @@ class ProjectAddInstanceForm(BootstrapMixin, forms.Form):
     )
     class Meta:
         fields = [
-            'cluster', 'instance'
+            'cluster', 'virtualmachine'
         ]
 
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
         
-        self.fields['instance'].choices = []
+        self.fields['virtualmachine'].choices = []
+
+class ProjectAddContactForm(BootstrapMixin, forms.Form):
+    contact = DynamicModelMultipleChoiceField(
+        queryset=Contact.objects.all(),
+    )
+    class Meta:
+        fields = [
+            'contact'
+        ]
+
+    def __init__(self, *args, **kwargs):
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['contact'].choices = []
+
+class DeletePJUserForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = []
+
+    users = forms.ModelMultipleChoiceField(
+        queryset=Contact.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )

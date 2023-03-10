@@ -21,12 +21,15 @@ class Project(NetBoxModel):
 
     project_id = models.CharField(
         max_length=100,
-        blank=True
+        blank=True,
+        verbose_name = 'Project ID'
     )
 
     domain_name = models.CharField(
         max_length=50,
-        blank=True
+        blank=True,
+        null=True,
+        verbose_name = 'Domain Name'
     )
 
     status = models.CharField(
@@ -38,39 +41,97 @@ class Project(NetBoxModel):
         to='netbox_manage_project.QuotaTemplate',
         on_delete=models.SET_NULL,
         related_name='project_quota',
-        null=True
+        null=True,
+        verbose_name = 'Quota Template'
     )
-    devices = models.ForeignKey(
+    devices = models.ManyToManyField(
         to='dcim.Device', 
-        on_delete=models.CASCADE, 
         related_name='assigned_device',
         blank=True,
-        null=True,
         default=None
     )
-    ipaddress = models.ForeignKey(
+    ipaddress = models.ManyToManyField(
         to='ipam.IPAddress', 
-        on_delete=models.CASCADE, 
         related_name='assigned_ipaddress',
         blank=True,
-        null=True,
         default=None
     )
-    instance = models.ForeignKey(
+    virtualmachine = models.ManyToManyField(
         to='virtualization.VirtualMachine', 
-        on_delete=models.CASCADE, 
-        related_name='assigned_instance',
+        related_name='assigned_vm',
         blank=True,
-        null=True,
+        default=None
+    )
+    contact = models.ManyToManyField(
+        to='tenancy.Contact', 
+        related_name='assigned_contact',
+        blank=True,
         default=None
     )
     description = models.CharField(
         max_length=500,
         blank=True
     )
-    device_count = models.IntegerField(null=True, blank=True, default=None)
-    ip_count = models.IntegerField(null=True, blank=True, default=None)
-    instance_count = models.IntegerField(null=True, blank=True, default=None)
+
+    # Count Quota use
+    device_count = models.IntegerField(
+        null=True, 
+        blank=True, 
+        default=None,
+        verbose_name = 'Device Count'
+    )
+    ip_count = models.IntegerField(
+        null=True, 
+        blank=True, 
+        default=None,
+        verbose_name = 'IP Count'
+    )
+    vm_count = models.IntegerField(
+        null=True, 
+        blank=True,
+        default=None,
+        verbose_name = 'VM Count'
+    )
+    user_count = models.IntegerField(
+        null=True, 
+        blank=True,
+        default=None,
+        verbose_name = 'User Count'
+    )
+
+    # Quota Used
+    ram_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+    cpu_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+    disk_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+    device_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+    vm_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+    ip_quota_used = models.CharField(
+        max_length=100,
+        null=True,
+        default=None
+    )
+
+    # Comment
     comments = models.TextField(
         blank=True
     )

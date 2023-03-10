@@ -25,9 +25,12 @@ urlpatterns = (
     # path('projects/<int:pk>/ipaddress/remove/', views.ProjectRemoveIPAddressView.as_view(), name='project_remove_ipaddress'),
 
     # project Instance
-    path('project/<int:pk>/instance/', views.ProjectInstanceView.as_view(), name='project_instance'),
-    path('projects/<int:pk>/instance/add/', views.ProjectAddInstanceView.as_view(), name='project_add_instance'),
-    # path('projects/<int:pk>/instance/remove/', views.ProjectRemoveInstanceView.as_view(), name='project_remove_instance'),
+    path('project/<int:pk>/virtualmachine/', views.ProjectInstanceView.as_view(), name='project_virtualmachine'),
+    path('projects/<int:pk>/virtualmachine/add/', views.ProjectAddInstanceView.as_view(), name='project_add_virtualmachine'),
+    # path('projects/<int:pk>/virtualmachine/remove/', views.ProjectRemoveInstanceView.as_view(), name='project_remove_virtualmachine'),
+
+    # Project Contact
+    path('projects/<int:pk>/contact/add/', views.ProjectAddContactView.as_view(), name='project_add_contact'),
 
     # Quota Template
     path('quotatemplate/', views.QuotaTemplateListView.as_view(), name='quotatemplate_list'),
@@ -39,18 +42,4 @@ urlpatterns = (
         'model': models.QuotaTemplate
     }),
 
-
-    # User
-    path('user/', views.UserListView.as_view(), name='user_list'),
-    path('user/add/', views.UserEditView.as_view(), name='user_add'),
-    path('user/<int:pk>/', views.UserView.as_view(), name='user'),
-    path('user/<int:pk>/edit/', views.UserEditView.as_view(), name='user_edit'),
-    path('user/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
-    path('user/<int:pk>/changelog/', ObjectChangeLogView.as_view(), name='user_changelog', kwargs={
-        'model': models.User
-    }),
-
-    # path('', include('netbox.api.urls')),
-    # path('plugins/', include('plugins.api.urls', namespace='plugins-api')),
-    # path('plugins/netbox_manage_project/', include('netbox_manage_project.urls', namespace='netbox_manage_project-api')),
 )

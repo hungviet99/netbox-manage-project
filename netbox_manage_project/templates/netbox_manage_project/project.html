@@ -38,6 +38,37 @@
       {% include 'inc/panels/custom_fields.html' %}
     </div>
     <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Quota Used Summary</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">RAM</th>
+              <td>{{ object.ram_quota_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">VCPUs</th>
+              <td>{{ object.cpu_quota_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Disk</th>
+              <td>{{ object.disk_quota_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Devices</th>
+              <td>{{ object.device_quota_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">VMs</th>
+              <td>{{ object.vm_quota_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">IPs</th>
+              <td>{{ object.ip_quota_used|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}
     </div>
@@ -45,9 +76,30 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Rules</h5>
-        <div class="card-body table-responsive">
-          {% render_table user_tables %}
+        <h5 class="card-header">Users</h5>
+        <div class="card-footer text-end noprint">
+          <div class="noprint bulk-buttons d-flex justify-content-end">
+            <div class="bulk-button-group ml-auto">
+              <a href="{% url 'plugins:netbox_manage_project:project_add_contact' pk=object.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-green" title="Assign User to Project">
+                <span class="mdi mdi-vector-difference-ba" aria-hidden="true"></span> Assign User
+              </a>
+            </div>
+          </div>
+          <form action="." method="post">
+            {% csrf_token %}
+            <div class="card">
+              <div class="card-body" id="object_list">
+                {% render_table table_user %}
+              </div>
+            </div>
+            <div class="noprint bulk-buttons">
+              <div class="bulk-button-group">
+                <button type="submit" name="_remove" class="btn btn-danger btn-sm">
+                  <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Unassign User
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>

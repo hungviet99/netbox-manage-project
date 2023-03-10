@@ -4,8 +4,8 @@
 
 {% render_errors form %}
 
-{% block title %}Add Instance to Project {{ project }}{% endblock %}
-
+{% block title %}Add Contact to Project {{ project }}{% endblock %}
+<!-- {{ project }} -->
 {% block content %}
     <form action="." method="post">
         {% csrf_token %}
@@ -15,7 +15,7 @@
         <div class="row">
             <div class="col col-md-6 offset-md-3">
                 <div class="field-group">
-                    <h5 class="text-center">Instance Selection</h5>
+                    <h5 class="text-center">Contact Selection</h5>
                     {% render_form form %}
                 </div>
             </div>
@@ -23,7 +23,7 @@
         <div class="row">
             <div class="col col-md-6 offset-md-3 text-end noprint">
                 <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                <button type="submit" name="_add" class="btn btn-primary">Add Instance</button>
+                <button type="submit" name="_add" class="btn btn-primary">Add Contact</button>
             </div>
         </div>
     </form>

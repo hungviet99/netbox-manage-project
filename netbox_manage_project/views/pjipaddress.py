@@ -26,8 +26,9 @@ class ProjectIPAddressView(generic.ObjectChildrenView):
     )
      # permission='virtualization.view_virtualmachine',
     def get_children(self, request, parent):
+        ips_list = parent.ipaddress.all()
         return IPAddress.objects.restrict(request.user, 'view').filter(
-            custom_field_data__project='project_{}'.format(parent.pk)
+            pk__in=[ipaddr.pk for ipaddr in ips_list]
         )
 
 
@@ -60,10 +61,8 @@ class ProjectAddIPAddressView(generic.ObjectEditView):
 
                 # Assign the selected IPAddress to the Project
                 for ipaddress in IPAddress.objects.filter(pk__in=ipaddress_pks):
-                    custom_field_data = ipaddress.custom_field_data
-                    custom_field_data['project'] = 'project_{}'.format(pk)
-                    ipaddress.custom_field_data = custom_field_data
-                    ipaddress.save()
+                    project.ipaddress.add(ipaddress)
+                    project.save()
 
             messages.success(request, "Added {} ipaddress to project {}".format(
                 len(ipaddress_pks), project

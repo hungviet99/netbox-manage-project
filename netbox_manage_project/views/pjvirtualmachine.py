@@ -12,31 +12,31 @@ from utilities.views import ViewTab, register_model_view
 from django.contrib import messages
 
 
-@register_model_view(Project, 'instance')
+@register_model_view(Project, 'virtualmachine')
 class ProjectInstanceView(generic.ObjectChildrenView):
     queryset = Project.objects.all()
     child_model = VirtualMachine
     table = VirtualMachineTable
     filterset = VirtualMachineFilterSet
-    template_name = 'project_views/instance.html'
+    template_name = 'project_views/virtualmachine.html'
     tab = ViewTab(
         label=_('VirtualMachine'),
-        badge=lambda obj: obj.instance.count() if obj.instance else 0,
+        badge=lambda obj: obj.virtualmachine.count() if obj.virtualmachine else 0,
         weight=600
     )
      # permission='virtualization.view_virtualmachine',
     def get_children(self, request, parent):
+        vms_list = parent.virtualmachine.all()
         return VirtualMachine.objects.restrict(request.user, 'view').filter(
-            custom_field_data__project='project_{}'.format(parent.pk)
+            pk__in=[vm.pk for vm in vms_list]
         )
 
 
-
-@register_model_view(Project, 'add_instance', path='instance/add')
+@register_model_view(Project, 'add_virtualmachine', path='virtualmachine/add')
 class ProjectAddInstanceView(generic.ObjectEditView):
     queryset = Project.objects.all()
     form = forms.ProjectAddInstanceForm
-    template_name = 'project_views/project_add_instance.html'
+    template_name = 'project_views/project_add_virtualmachine.html'
 
     def get(self, request, pk):
         queryset = self.queryset.filter(pk=pk)
@@ -55,22 +55,14 @@ class ProjectAddInstanceView(generic.ObjectEditView):
         form = self.form(request.POST)
 
         if form.is_valid():
-            instance_pks = form.cleaned_data['instance']
+            vm_pks = form.cleaned_data['virtualmachine']
             with transaction.atomic():
-                # Assign the selected Instance to the Project
-                for instance in VirtualMachine.objects.filter(pk__in=instance_pks):
-                    custom_field_data = instance.custom_field_data
-                    custom_field_data['project'] = 'project_{}'.format(pk)
-                    instance.custom_field_data = custom_field_data
-                    instance.save()
-                # for pk in instance_pks:
-                #     instance = VirtualMachine.objects.get(pk=pk)
-                #     custom_field_data = instance.custom_field_data
-                #     custom_field_data['project'] = 'project_{}'.format(pk)
-                #     instance.custom_field_data = custom_field_data
-                #     instance.save()
-            messages.success(request, "Added {} instance to project {}".format(
-                len(instance_pks), project
+                # Assign the selected VM to the Project
+                for virtualmachine in VirtualMachine.objects.filter(pk__in=vm_pks):
+                    project.virtualmachine.add(virtualmachine)
+                    project.save()
+            messages.success(request, "Added {} VirtualMachine to Project {}".format(
+                len(vm_pks), project
             ))
             return redirect(project.get_absolute_url())
 

@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from utilities.views import ViewTab, register_model_view
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
+import sys
 
 
 @register_model_view(Project, 'add_devices', path='devices/add')
@@ -18,10 +19,6 @@ class ProjectAddDevicesView(generic.ObjectEditView):
     queryset = Project.objects.all()
     form = forms.ProjectAddDevicesForm
     template_name = 'project_views/project_add_devices.html'
-
-    @csrf_protect
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get(self, request, pk):
         queryset = self.queryset.filter(pk=pk)
@@ -46,10 +43,8 @@ class ProjectAddDevicesView(generic.ObjectEditView):
 
                 # Assign the selected Devices to the Project
                 for device in Device.objects.filter(pk__in=device_pks):
-                    custom_field_data = device.custom_field_data
-                    custom_field_data['project'] = 'project_{}'.format(pk)
-                    device.custom_field_data = custom_field_data
-                    device.save()
+                    project.devices.add(device)
+                    project.save()
 
             messages.success(request, "Added {} devices to project {}".format(
                 len(device_pks), project
@@ -61,7 +56,6 @@ class ProjectAddDevicesView(generic.ObjectEditView):
             'form': form,
             'return_url': project.get_absolute_url(),
         })
-
 
 
 ### Device Remove
@@ -81,14 +75,13 @@ class ProjectRemoveDevicesView(generic.ObjectEditView):
 
                 device_pks = form.cleaned_data['pk']
                 with transaction.atomic():
-
-                    # Remove the selected Devices from the Project
-                    for device in Device.objects.filter(pk__in=device_pks):
-                        custom_field_data = device.custom_field_data
-                        if 'project' in custom_field_data:
-                            del custom_field_data['project']
-                            device.custom_field_data = custom_field_data
-                            device.save()
+                        # Remove the selected Devices from the Project
+                        for device in Device.objects.filter(pk__in=device_pks):
+                            custom_field_data = device.custom_field_data
+                            if 'project' in custom_field_data:
+                                custom_field_data['project'] = None
+                                device.custom_field_data = custom_field_data
+                                device.save()
 
                 messages.success(request, "Removed {} devices from Project {}".format(
                     len(device_pks), project
@@ -96,9 +89,9 @@ class ProjectRemoveDevicesView(generic.ObjectEditView):
                 return redirect(project.get_absolute_url())
 
         else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-
-        selected_objects = Device.objects.filter(pk__in=form.initial['pk'])
+            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
+        pk_values = form.initial.get('pk', [])
+        selected_objects = Device.objects.filter(pk__in=pk_values)
         device_table = DeviceTable(list(selected_objects), orderable=False)
 
         return render(request, self.template_name, {
@@ -108,6 +101,7 @@ class ProjectRemoveDevicesView(generic.ObjectEditView):
             'obj_type_plural': 'devices',
             'return_url': project.get_absolute_url(),
         })
+
 
 @register_model_view(Project, 'devices')
 class ProjectDevicesView(generic.ObjectChildrenView):
@@ -123,6 +117,7 @@ class ProjectDevicesView(generic.ObjectChildrenView):
     )
      # permission='virtualization.view_virtualmachine',
     def get_children(self, request, parent):
+        device_list = parent.devices.all()
         return Device.objects.restrict(request.user, 'view').filter(
-            custom_field_data__project='project_{}'.format(parent.pk)
+            pk__in=[device.pk for device in device_list]
         )

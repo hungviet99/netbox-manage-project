@@ -1,42 +1,33 @@
 {% load helpers %}
+{% load render_table from django_tables2 %}
 
 <div class="card">
   <h5 class="card-header">Project</h5>
   <div class="card-body">
   {% if project %}
-    <table class="table table-hover attr-table">
+  <table class="table table-hover">
+    <thead>
       <tr>
-        <th scope="row"><span title="Project name">Name</span></th>
-        <td><a href="{% url "plugins:netbox_manage_project:project" project.pk %}">{{ project.name|default:'(None)' }}</a></td>
+        <th>Name</th>
+        <th>Domain Name</th>
+        <th>Status</th>
+        <th>Quota Template</th>
       </tr>
-      <tr>
-        <th scope="row"><span title="Project status">Status</span></a></th>
-        <td>{% badge project.get_status_display bg_color=project.get_status_color %}</a></td>
-      </tr>
-      <tr>
-        <th scope="row">Project ID</th>
-        <td>{{ project.project_id|placeholder }}</td>
-      </tr>
-      <tr>
-        <th scope="row">Domain name</th>
-        <td>{{ project.domain_name|placeholder }}</td>
-      </tr>
-    </table>
+    </thead>
+    <tbody>
+      {% for p in project %}
+        <tr>
+          <td><a href="{% url 'plugins:netbox_manage_project:project' pk=p.id %}?return_url={{ p.get_absolute_url }}">{{ p.name }} </a></td>
+          <td>{{ p.domain_name }}</td>
+          <td>{{ p.status }}</td>
+          <td>{{ p.quota_template }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
   {% else %}
     <div class="text-muted">None</div>
   {% endif %}
   </div>
-  <!-- {% if project %}
-  <div class="card-footer text-end noprint">
-    <a href="{% url 'plugins:netbox_inventory:asset' asset.pk %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-      <i class="mdi mdi-vector-link" aria-hidden="true"></i> Edit assignment
-    </a>
-  </div>
-  {% else %}
-  <div class="card-footer text-end noprint">
-    <a href="{% url 'plugins:netbox_inventory:asset_list' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Assign asset
-    </a>
-  </div>
-  {% endif %} -->
 </div>

@@ -5,26 +5,33 @@ from netbox.models import NetBoxModel
 
 class QuotaTemplate(NetBoxModel):
     template_name = models.CharField(
-        max_length=100
+        max_length=100,
+        null=True,
+        verbose_name = 'Template Quota'
     )
     instances_quota = models.PositiveIntegerField(
-        blank=True
+        null=True,
+        verbose_name = 'VM Quota'
     )
 
     vcpus_quota = models.PositiveIntegerField(
-        blank=True
+        null=True,
+        verbose_name = 'VCPUs Quota'
     )
 
     ram_quota = models.PositiveIntegerField(
-        blank=True
+        null=True,
+        verbose_name = 'RAM Quota (MB)'
     )
 
     ipaddr_quota = models.PositiveIntegerField(
-        blank=True
+        null=True,
+        verbose_name = 'IP Quota'
     )
 
     device_quota = models.PositiveIntegerField(
-        blank=True
+        null=True,
+        verbose_name = 'Device Quota'
     )
 
     comments = models.TextField(
