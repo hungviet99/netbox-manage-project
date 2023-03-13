@@ -47,7 +47,7 @@ if HAVE_MENU:
     menu = PluginMenu(
         label=f'Project',
         groups=(
-            ('Project Management', menu_buttons),
+            ('Project Quota', menu_buttons),
         ),
         icon_class='mdi mdi-clipboard-text-multiple-outline'
     )

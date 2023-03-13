@@ -1,12 +1,12 @@
-{% extends 'project_views/virtualmachine_base.html' %}
+{% extends 'project_views/project_user_base.html' %}
 
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
 {% block content %}
-  {% include 'netbox_manage_project/inc/table_controls_htmx.html' with table_modal="VirtualMachineTable_config" %}
+  {% include 'netbox_manage_project/inc/table_controls_htmx.html' with table_modal="ContactTable_config" %}
   
-  <form action="{% url 'plugins:netbox_manage_project:project_remove_virtualmachine' pk=object.pk %}" method="post">
+  <form action="{% url 'plugins:netbox_manage_project:project_remove_contact' pk=object.pk %}" method="post">
     {% csrf_token %}
     <div class="card">
       <div class="card-body" id="object_list">
@@ -17,7 +17,7 @@
       <div class="bulk-button-group">
         <!-- {% if perms.virtualization.change_cluster %} -->
           <button type="submit" name="_remove" class="btn btn-danger btn-sm">
-            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove VirtualMachine
+            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Remove Users
           </button>
         <!-- {% endif %} -->
       </div>

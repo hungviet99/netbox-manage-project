@@ -6,24 +6,16 @@ from .. import forms, models, tables
 from django.db.models import Sum
 # from django.contrib.contenttypes.models import ContentType
 # from extras.models import CustomField
-from tenancy.models import Contact
-from tenancy.tables import ContactTable
+# from tenancy.models import Contact
+# from tenancy.tables import ContactTable
 from django.db.models import Count
+from django_tables2 import RequestConfig
+
 
 
 # Project view
 class ProjectView(generic.ObjectView):
     queryset = models.Project.objects.all()
-    def get_extra_context(self, request, instance, **kwargs):
-        contacts_list = instance.contact.all()
-        table = ContactTable(Contact.objects.filter(
-            pk__in=[contact.pk for contact in contacts_list]
-            ).annotate(assignment_count=Count('assignments'))
-        )
-        table.configure(request)
-        return {
-            'table_user': table,
-        }
 
 
 class ProjectListView(generic.ObjectListView):

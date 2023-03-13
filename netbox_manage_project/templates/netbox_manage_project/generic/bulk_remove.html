@@ -17,7 +17,7 @@
   <div class="table-responsive">
     {% render_table table 'inc/table.html' %}
   </div>
-  <form action="{% url 'plugins:netbox_manage_project:project_remove_devices' pk=parent_obj.pk %}" method="post" class="form">
+  <form action="." method="post" class="form">
     {% csrf_token %}
     {% for field in form.hidden_fields %}
       {{ field }}

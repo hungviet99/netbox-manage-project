@@ -43,8 +43,11 @@ class ProjectAddDevicesView(generic.ObjectEditView):
 
                 # Assign the selected Devices to the Project
                 for device in Device.objects.filter(pk__in=device_pks):
-                    project.devices.add(device)
-                    project.save()
+                    if device in project.devices.all():
+                        continue
+                    else:
+                        project.devices.add(device)
+                        project.save()
 
             messages.success(request, "Added {} devices to project {}".format(
                 len(device_pks), project
@@ -71,23 +74,18 @@ class ProjectRemoveDevicesView(generic.ObjectEditView):
 
         if '_confirm' in request.POST:
             form = self.form(request.POST)
-            if form.is_valid():
+            # if form.is_valid():
+            device_pks = request.POST.getlist('pk')
+            with transaction.atomic():
+                    # Remove the selected Devices from the Project
+                    for device in Device.objects.filter(pk__in=device_pks):
+                        project.devices.remove(device)
+                        project.save()
 
-                device_pks = form.cleaned_data['pk']
-                with transaction.atomic():
-                        # Remove the selected Devices from the Project
-                        for device in Device.objects.filter(pk__in=device_pks):
-                            custom_field_data = device.custom_field_data
-                            if 'project' in custom_field_data:
-                                custom_field_data['project'] = None
-                                device.custom_field_data = custom_field_data
-                                device.save()
-
-                messages.success(request, "Removed {} devices from Project {}".format(
-                    len(device_pks), project
-                ))
-                return redirect(project.get_absolute_url())
-
+            messages.success(request, "Removed {} devices from Project {}".format(
+                len(device_pks), project
+            ))
+            return redirect(project.get_absolute_url())
         else:
             form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
         pk_values = form.initial.get('pk', [])

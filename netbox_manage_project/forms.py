@@ -158,7 +158,7 @@ class ProjectRemoveDevicesForm(ConfirmationForm):
 
 ###### Project IPAddress ######
 
-### Device ADD
+### IP ADD
 class ProjectAddIPAddressForm(BootstrapMixin, forms.Form):
     ipaddress = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
@@ -175,10 +175,17 @@ class ProjectAddIPAddressForm(BootstrapMixin, forms.Form):
         self.fields['ipaddress'].choices = []
 
 
+### IP Remove
+
+class ProjectRemoveIPsForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
 
 ###### Project Instance ######
 
-### Instance ADD
+### VM ADD
 class ProjectAddInstanceForm(BootstrapMixin, forms.Form):
     cluster = DynamicModelChoiceField(
         queryset=Cluster.objects.all()
@@ -201,6 +208,14 @@ class ProjectAddInstanceForm(BootstrapMixin, forms.Form):
         
         self.fields['virtualmachine'].choices = []
 
+### VM Remove
+class ProjectRemoveVMsForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        widget=forms.MultipleHiddenInput()
+    )
+
+
 class ProjectAddContactForm(BootstrapMixin, forms.Form):
     contact = DynamicModelMultipleChoiceField(
         queryset=Contact.objects.all(),
@@ -216,12 +231,9 @@ class ProjectAddContactForm(BootstrapMixin, forms.Form):
 
         self.fields['contact'].choices = []
 
-class DeletePJUserForm(forms.ModelForm):
-    class Meta:
-        model = Contact
-        fields = []
 
-    users = forms.ModelMultipleChoiceField(
+class ProjectContactRemoveForm(ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
         queryset=Contact.objects.all(),
-        widget=forms.CheckboxSelectMultiple
+        widget=forms.MultipleHiddenInput()
     )

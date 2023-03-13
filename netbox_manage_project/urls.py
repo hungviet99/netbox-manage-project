@@ -22,15 +22,17 @@ urlpatterns = (
     # # Project IPAddress
     path('project/<int:pk>/ipaddress/', views.ProjectIPAddressView.as_view(), name='project_ipaddress'),
     path('projects/<int:pk>/ipaddress/add/', views.ProjectAddIPAddressView.as_view(), name='project_add_ipaddress'),
-    # path('projects/<int:pk>/ipaddress/remove/', views.ProjectRemoveIPAddressView.as_view(), name='project_remove_ipaddress'),
+    path('projects/<int:pk>/ipaddress/remove/', views.ProjectRemoveIPAddressView.as_view(), name='project_remove_ipaddress'),
 
     # project Instance
     path('project/<int:pk>/virtualmachine/', views.ProjectInstanceView.as_view(), name='project_virtualmachine'),
     path('projects/<int:pk>/virtualmachine/add/', views.ProjectAddInstanceView.as_view(), name='project_add_virtualmachine'),
-    # path('projects/<int:pk>/virtualmachine/remove/', views.ProjectRemoveInstanceView.as_view(), name='project_remove_virtualmachine'),
+    path('projects/<int:pk>/virtualmachine/remove/', views.ProjectRemoveVMsView.as_view(), name='project_remove_virtualmachine'),
 
     # Project Contact
+    path('project/<int:pk>/contact/', views.ProjectContactView.as_view(), name='project_contact'),
     path('projects/<int:pk>/contact/add/', views.ProjectAddContactView.as_view(), name='project_add_contact'),
+    path('projects/<int:pk>/contact/remove/', views.ProjectRemoveContactView.as_view(), name='project_remove_contact'),
 
     # Quota Template
     path('quotatemplate/', views.QuotaTemplateListView.as_view(), name='quotatemplate_list'),
